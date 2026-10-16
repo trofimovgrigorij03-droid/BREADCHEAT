@@ -17,15 +17,27 @@ jobs:
         with:
           arch: x86
 
-      - name: Build
-        shell: cmd
+      - name: Find and build project
+        shell: pwsh
         run: |
-          cd /d "%GITHUB_WORKSPACE%\Hlebushek_Injector"
-          call build.bat
+          $files = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Filter build.bat -Recurse -File
+
+          if (-not $files) {
+            Write-Error "build.bat was not found in the repository."
+            exit 1
+          }
+
+          $bat = $files | Select-Object -First 1
+          Write-Host "Build script: $($bat.FullName)"
+
+          cmd.exe /d /c "`"$($bat.FullName)`""
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Hlebushek_Injector
-          path: Hlebushek_Injector/bin/Hlebushek_Injector.exe
+          path: '**/bin/Hlebushek_Injector.exe'
           if-no-files-found: error
