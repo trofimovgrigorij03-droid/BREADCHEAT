@@ -17,7 +17,7 @@ jobs:
 
       - name: Build
         shell: cmd
-        run: call Hlebushek_Injector\build.bat
+        run: call build.bat
 
       - uses: actions/upload-artifact@v4
         with:
